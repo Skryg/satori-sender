@@ -3,6 +3,7 @@ import requests
 import argparse
 import time
 import re
+from requests.adapters import HTTPAdapter, Retry
 
 import colorama
 from colorama import Fore,Back,Style
@@ -28,6 +29,9 @@ payload = {'login': login, 'password': password}
 
 
 with requests.Session() as s:
+    adapter = HTTPAdapter(max_retries=Retry(total=10, backoff_factor=0.5))
+    s.mount('https://', adapter)
+    s.mount('http://', adapter)
     login = s.post(loginUrl, data=payload)
     print(f'Login status: {login.status_code}')
     print("Sending a submit")
@@ -39,6 +43,7 @@ with requests.Session() as s:
     resultsURL = f"https://satori.tcs.uj.edu.pl/contest/{contestId}/results/{submitID}"
     print(f"Waiting for result... {Style.DIM}{Back.YELLOW}QUE{Style.RESET_ALL} now")
     while True:
+        time.sleep(5)
         res = s.get(resultsURL)
         status = re.search(r'<td class=sta(.*?)>', res.text).group(1)
         if status != "QUE":
@@ -49,4 +54,3 @@ with requests.Session() as s:
                 
             print(resultsURL)
             break
-        time.sleep(5)
