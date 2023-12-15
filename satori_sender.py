@@ -5,7 +5,6 @@ import time
 import re
 from requests.adapters import HTTPAdapter, Retry
 
-import colorama
 from colorama import Fore,Back,Style
 
 parser = argparse.ArgumentParser(
